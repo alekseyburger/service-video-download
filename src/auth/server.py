@@ -11,14 +11,23 @@ server.config["MYSQL_USER"] = os.environ.get("MYSQL_USER")
 server.config["MYSQL_PASSWORD"] = os.environ.get("MYSQL_PASSWORD")
 server.config["MYSQL_DB"] = os.environ.get("MYSQL_DB")
 server.config["MYSQL_PORT"] = int(os.environ.get("MYSQL_PORT"))
+jwt_secret = os.environ.get("JWT_SECRET")
 
+print("config:", server.config["MYSQL_HOST"], server.config["MYSQL_USER"],
+    server.config["MYSQL_PASSWORD"],
+    server.config["MYSQL_DB"],
+    server.config["MYSQL_PORT"])
 
 @server.route("/login", methods=["POST"])
 def login():
     auth = request.authorization
+    # auth.username = "user@email.com"
+    # auth.password = "user"
     if not auth:
+        print("there is no auth field in request")
         return "missing credentials", 401
 
+    print("credentials: ", auth)
     # check db for username and password
     cur = mysql.connection.cursor()
     res = cur.execute(
@@ -31,10 +40,16 @@ def login():
         password = user_row[1]
 
         if auth.username != email or auth.password != password:
+            # wrong password
+            print("invalid credentials: ", auth.username,auth.password)
             return "invalid credentials", 401
         else:
-            return createJWT(auth.username, os.environ.get("JWT_SECRET"), True)
+            token = createJWT(auth.username, jwt_secret, True)
+            print("token:", token)
+            return token
     else:
+        #  user doesn't exist
+        print("invalid DB result")
         return "invalid credentials", 401
 
 
@@ -45,11 +60,12 @@ def validate():
     if not encoded_jwt:
         return "missing credentials", 401
 
+    # string <Barier token>. We need the token
     encoded_jwt = encoded_jwt.split(" ")[1]
 
     try:
         decoded = jwt.decode(
-            encoded_jwt, os.environ.get("JWT_SECRET"), algorithms=["HS256"]
+            encoded_jwt, jwt_secret, algorithms=["HS256"]
         )
     except:
         return "not authorized", 403
