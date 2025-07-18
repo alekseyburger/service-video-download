@@ -1,10 +1,18 @@
 import pika, sys, os, time
 from send import email
+import logging
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def main():
     # rabbitmq connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+    except Exception as e:
+        logger.error('RabbitMQ connection error:', e)
+        sys.exit(0)
+    
     channel = connection.channel()
 
     def callback(ch, method, properties, body):
@@ -18,7 +26,7 @@ def main():
         queue=os.environ.get("MP3_QUEUE"), on_message_callback=callback
     )
 
-    print("Waiting for messages. To exit press CTRL+C")
+    logger.info("Waiting for messages. To exit press CTRL+C")
 
     channel.start_consuming()
 

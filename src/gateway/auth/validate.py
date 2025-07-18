@@ -1,5 +1,7 @@
 import os, requests
+import logging
 
+logger = logging.getLogger('server.sub')
 
 def token(request):
     if not "Authorization" in request.headers:

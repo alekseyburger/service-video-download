@@ -1,11 +1,12 @@
-CREATE USER 'admin'@'localhost' IDENTIFIED BY 'Admin123@';
+#CREATE USER 'admin'@'localhost' IDENTIFIED BY 'Admin123@';
+CREATE USER 'authapp'@'%' IDENTIFIED BY 'Pass123@word';
 
 CREATE DATABASE auth;
 
-GRANT ALL PRIVILEGES ON auth.* TO 'admin'@'localhost';
+#GRANT ALL PRIVILEGES ON auth.* TO 'admin'@'localhost';
+GRANT ALL PRIVILEGES ON auth.* TO 'authapp'@'%';
 
 USE auth;
-
 CREATE TABLE user (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,

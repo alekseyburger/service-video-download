@@ -1,6 +1,22 @@
 import jwt, datetime, os
 from flask import Flask, request
+from flask import logging
 from flask_mysqldb import MySQL
+
+def flask_logger_set (level: str) -> None:
+
+    if 0 == level.find("DEBUG"):
+        server.logger.setLevel(logging.logging.DEBUG)
+    elif 0 == level.find("INFO"):
+        server.logger.setLevel(logging.logging.INFO)
+    elif 0 == level.find("WARNING"):
+        server.logger.setLevel(logging.logging.WARNING)
+    elif 0 == level.find("ERROR"):
+        server.logger.setLevel(logging.logging.ERROR)
+    elif 0 == level.find("CRITICAL"):
+        server.logger.setLevel(logging.logging.CRITICAL)
+    else:
+        server.logger.setLevel(logging.logging.ERROR)
 
 server = Flask(__name__)
 mysql = MySQL(server)
@@ -11,12 +27,16 @@ server.config["MYSQL_USER"] = os.environ.get("MYSQL_USER")
 server.config["MYSQL_PASSWORD"] = os.environ.get("MYSQL_PASSWORD")
 server.config["MYSQL_DB"] = os.environ.get("MYSQL_DB")
 server.config["MYSQL_PORT"] = int(os.environ.get("MYSQL_PORT"))
+
 jwt_secret = os.environ.get("JWT_SECRET")
 
-print("config:", server.config["MYSQL_HOST"], server.config["MYSQL_USER"],
-    server.config["MYSQL_PASSWORD"],
-    server.config["MYSQL_DB"],
-    server.config["MYSQL_PORT"])
+level = os.environ.get("LOGGING")
+level =  "ERROR" if not level else level
+flask_logger_set(level)
+
+server.logger.info(f'Start server with MySql credentials: {server.config["MYSQL_USER"]}@' +
+    f'{server.config["MYSQL_HOST"]} DB: {server.config["MYSQL_DB"]} ' +
+    f'port: {server.config["MYSQL_PORT"]}')
 
 @server.route("/login", methods=["POST"])
 def login():
@@ -24,15 +44,20 @@ def login():
     # auth.username = "user@email.com"
     # auth.password = "user"
     if not auth:
-        print("there is no auth field in request")
+        server.logger.debug(f'there is no auth field in request')
         return "missing credentials", 401
 
-    print("credentials: ", auth)
+    server.logger.debug(f'authentication request for user: {auth}')
     # check db for username and password
-    cur = mysql.connection.cursor()
-    res = cur.execute(
-        "SELECT email, password FROM user WHERE email=%s", (auth.username,)
-    )
+    try:
+        cur = mysql.connection.cursor()
+        res = cur.execute(
+            "SELECT email, password FROM user WHERE email=%s", (auth.username,)
+        )
+    except Exception as e:
+        server.logger.info(e)
+        return "MySql Server Error", 500
+
 
     if res > 0:
         user_row = cur.fetchone()
@@ -41,15 +66,15 @@ def login():
 
         if auth.username != email or auth.password != password:
             # wrong password
-            print("invalid credentials: ", auth.username,auth.password)
+            server.logger.debug(f'there are invalid credentials: {auth.username}:{auth.password}')
             return "invalid credentials", 401
         else:
             token = createJWT(auth.username, jwt_secret, True)
-            print("token:", token)
+            server.logger.debug(f'create token for {auth.username} : {token}')
             return token
     else:
         #  user doesn't exist
-        print("invalid DB result")
+        server.logger.debug(f'invalid DB result for user {auth.username}')
         return "invalid credentials", 401
 
 
@@ -58,6 +83,7 @@ def validate():
     encoded_jwt = request.headers["Authorization"]
 
     if not encoded_jwt:
+        server.logger.debug(f'there is no token in request')
         return "missing credentials", 401
 
     # string <Barier token>. We need the token
@@ -67,9 +93,12 @@ def validate():
         decoded = jwt.decode(
             encoded_jwt, jwt_secret, algorithms=["HS256"]
         )
-    except:
+    except Exception as err:
+        server.logger.debug(f'token is not valid')
+        server.logger.debug(err)
         return "not authorized", 403
 
+    server.logger.debug(f'token is valid')
     return decoded, 200
 
 
@@ -78,7 +107,7 @@ def createJWT(username, secret, authz):
         {
             "username": username,
             "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=1),
-            "iat": datetime.datetime.utcnow(),
+            "iat": datetime.datetime.now(datetime.UTC),
             "admin": authz,
         },
         secret,

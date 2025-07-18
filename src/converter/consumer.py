@@ -2,7 +2,10 @@ import pika, sys, os, time
 from pymongo import MongoClient
 import gridfs
 from convert import to_mp3
+import logging
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def main():
     client = MongoClient("host.minikube.internal", 27017)
@@ -13,7 +16,12 @@ def main():
     fs_mp3s = gridfs.GridFS(db_mp3s)
 
     # rabbitmq connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+    except Exception as e:
+        logger.error('RabbitMQ connection error:', e)
+        sys.exit(0)
+
     channel = connection.channel()
 
     def callback(ch, method, properties, body):
@@ -27,16 +35,9 @@ def main():
         queue=os.environ.get("VIDEO_QUEUE"), on_message_callback=callback
     )
 
-    print("Waiting for messages. To exit press CTRL+C")
+    logger.info("Waiting for messages. To exit press CTRL+C")
 
     channel.start_consuming()
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Interrupted")
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+    main()

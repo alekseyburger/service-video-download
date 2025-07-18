@@ -1,11 +1,13 @@
 import pika, json, tempfile, os
 from bson.objectid import ObjectId
-import moviepy.editor
-
+from moviepy.video.io.VideoFileClip import VideoFileClip
+import logging
+logger = logging.getLogger(__name__)
 
 def start(message, fs_videos, fs_mp3s, channel):
     message = json.loads(message)
 
+    logger.debug(f'request for {message["video_fid"]} is received')
     # empty temp file
     tf = tempfile.NamedTemporaryFile()
     # video contents
@@ -13,7 +15,7 @@ def start(message, fs_videos, fs_mp3s, channel):
     # add video contents to empty file
     tf.write(out.read())
     # create audio from temp video file
-    audio = moviepy.editor.VideoFileClip(tf.name).audio
+    audio = VideoFileClip(tf.name).audio
     tf.close()
 
     # write audio to the file
@@ -26,6 +28,8 @@ def start(message, fs_videos, fs_mp3s, channel):
     fid = fs_mp3s.put(data)
     f.close()
     os.remove(tf_path)
+
+    logger.debug(f'converted data {message["video_fid"]} is ready')
 
     message["mp3_fid"] = str(fid)
 

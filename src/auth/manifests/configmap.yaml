@@ -4,6 +4,7 @@ metadata:
   name: auth-configmap
 data:
   MYSQL_HOST: host.minikube.internal
-  MYSQL_USER: admin
+  MYSQL_USER: authapp
   MYSQL_DB: auth
   MYSQL_PORT: "3306"
+  LOGGING: DEBUG
