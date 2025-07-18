@@ -1,6 +1,8 @@
 import pika, sys, os, time
-from send import email
+from send import gmail
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def main():
     # rabbitmq connection
@@ -8,7 +10,7 @@ def main():
     channel = connection.channel()
 
     def callback(ch, method, properties, body):
-        err = email.notification(body)
+        err = gmail.notification(body)
         if err:
             ch.basic_nack(delivery_tag=method.delivery_tag)
         else:

@@ -1,6 +1,9 @@
 import smtplib, os, json
 from email.message import EmailMessage
+import logging
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def notification(message):
     # try:
