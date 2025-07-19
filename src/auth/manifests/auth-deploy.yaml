@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: alekseyburger/auth
+          image: $DOCKER_ACCOUNT$/auth
           ports:
             - containerPort: 5000
           envFrom:

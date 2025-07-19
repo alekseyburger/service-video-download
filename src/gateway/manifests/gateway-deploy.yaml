@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: alekseyburger/gateway
+          image: $DOCKER_ACCOUNT$/gateway
           envFrom:
             - configMapRef:
                 name: gateway-configmap
