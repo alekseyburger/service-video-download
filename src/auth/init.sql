@@ -1,9 +1,6 @@
-#CREATE USER 'admin'@'localhost' IDENTIFIED BY 'Admin123@';
 CREATE USER 'authapp'@'%' IDENTIFIED BY 'Pass123@word';
 
 CREATE DATABASE auth;
-
-#GRANT ALL PRIVILEGES ON auth.* TO 'admin'@'localhost';
 GRANT ALL PRIVILEGES ON auth.* TO 'authapp'@'%';
 
 USE auth;
@@ -14,7 +11,6 @@ CREATE TABLE user (
 );
 
 INSERT INTO user (email, password) VALUES ('user@email.com', 'user');
-#INSERT INTO user (email, password) VALUES ('admin@email.com', 'admin');
 
   
 
