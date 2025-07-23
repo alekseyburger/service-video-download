@@ -26,7 +26,7 @@ def upload(f, fs, channel, access):
                 delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE
             ),
         )
-        logger.debug(f'send message with video {str(fid)}')
+        logger.info(f'send message with video {str(fid)}')
     except Exception as err:
         logger.error(f'can\'t send message with video {str(fid)}')
         logger.error(err)

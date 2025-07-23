@@ -6,7 +6,7 @@ logger = logging.getLogger('server.sub')
 def login(request):
     auth = request.authorization
     if not auth:
-        logger.debug(f'wrong credentials {request.authorization}')
+        logger.info(f'wrong credentials {request.authorization}')
         return None, ("missing credentials", 401)
 
     logger.debug(f'request authentication for {request.authorization}') 
@@ -20,5 +20,5 @@ def login(request):
         logger.debug(f'authentication success {request.authorization}') 
         return response.text, None
     else:
-        logger.debug(f'authentication reject {request.authorization}') 
+        logger.info(f'authentication reject {request.authorization}') 
         return None, (response.text, response.status_code)

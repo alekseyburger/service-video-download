@@ -44,26 +44,26 @@ def upload():
     access, err = validate.token(request)
 
     if err:
-        server.logger.debug(f'token validation error')
+        server.logger.info(f'token validation error')
         return err
 
     access = json.loads(access)
 
     if access["admin"]:
         if len(request.files) > 1 or len(request.files) < 1:
-            server.logger.debug(f'exactly 1 file required: {request.files}')
+            server.logger.info(f'exactly 1 file required: {request.files}')
             return "exactly 1 file required", 400
 
         for _, f in request.files.items():
             err = util.upload(f, fs_videos, channel, access)
 
             if err:
-                server.logger.debug(err)
+                server.logger.info(err)
                 return err
 
         return "success!", 200
     else:
-        server.logger.debug(f'authorization error')
+        server.logger.info(f'authorization error')
         return "not authorized", 401
 
 
@@ -72,7 +72,7 @@ def download():
     access, err = validate.token(request)
 
     if err:
-        server.logger.debug(f'token validation error')
+        server.logger.info(f'token validation error')
         return err
 
     access = json.loads(access)
@@ -81,17 +81,17 @@ def download():
         fid_string = request.args.get("fid")
 
         if not fid_string:
-            server.logger.debug(f'fid is required')
+            server.logger.info(f'fid is required')
             return "fid is required", 400
 
         try:
             out = fs_mp3s.get(ObjectId(fid_string))
             return send_file(out, download_name=f"{fid_string}.mp3")
         except Exception as err:
-            server.logger.debug(err)
+            server.logger.info(err)
             return "internal server error", 500
 
-    server.logger.debug(f'authorization error')
+    server.logger.info(f'authorization error')
     return "not authorized", 401
 
 
