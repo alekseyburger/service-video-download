@@ -6,26 +6,7 @@ from auth import validate
 from auth_svc import access
 from storage import util
 from bson.objectid import ObjectId
-import sys
-sys.path.append('../lib/')
-import setlogger
-
-# remove it
-def flask_logger_set (level: str) -> None:
-
-    if 0 == level.find("DEBUG"):
-        server.logger.setLevel(logging.logging.DEBUG)
-    elif 0 == level.find("INFO"):
-        server.logger.setLevel(logging.logging.INFO)
-    elif 0 == level.find("WARNING"):
-        server.logger.setLevel(logging.logging.WARNING)
-    elif 0 == level.find("ERROR"):
-        server.logger.setLevel(logging.logging.ERROR)
-    elif 0 == level.find("CRITICAL"):
-        server.logger.setLevel(logging.logging.CRITICAL)
-    else:
-        server.logger.setLevel(logging.logging.ERROR)
-
+from lib import setlogger
 
 # start Flask
 server = Flask(__name__)
