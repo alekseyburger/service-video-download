@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: notification
-          image: $DOCKER_ACCOUNT$/notification
+          image: ${DOCKER_ACCOUNT}/notification
           envFrom:
             - configMapRef:
                 name: notification-configmap

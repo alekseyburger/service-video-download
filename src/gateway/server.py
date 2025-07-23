@@ -6,8 +6,11 @@ from auth import validate
 from auth_svc import access
 from storage import util
 from bson.objectid import ObjectId
+import sys
+sys.path.append('../lib/')
+import setlogger
 
-
+# remove it
 def flask_logger_set (level: str) -> None:
 
     if 0 == level.find("DEBUG"):
@@ -23,15 +26,19 @@ def flask_logger_set (level: str) -> None:
     else:
         server.logger.setLevel(logging.logging.ERROR)
 
+
+# start Flask
 server = Flask(__name__)
 
+# get logging level from the env variable and configure logger
 level = os.environ.get("LOGGING")
 level =  "ERROR" if not level else level
-flask_logger_set(level)
+server.logger.setLevel(setlogger.flask_logger_set(level))
 
+# connect to mongodb
 mongo_video = PyMongo(server, uri="mongodb://host.minikube.internal:27017/videos")
 mongo_mp3 = PyMongo(server, uri="mongodb://host.minikube.internal:27017/mp3s")
-
+# connect to GridFS
 fs_videos = gridfs.GridFS(mongo_video.db)
 fs_mp3s = gridfs.GridFS(mongo_mp3.db)
 
