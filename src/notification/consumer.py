@@ -2,9 +2,12 @@ import pika, sys, os, time
 #from send import email
 import logging
 from send import gmail
+from lib import setlogger
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+level = os.environ.get("LOGGING")
+level =  "ERROR" if not level else level
+logging.basicConfig(level=setlogger.str_to_log_level(level))
 
 def main():
     # rabbitmq connection

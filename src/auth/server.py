@@ -2,21 +2,7 @@ import jwt, datetime, os
 from flask import Flask, request
 from flask import logging
 from flask_mysqldb import MySQL
-
-def flask_logger_set (level: str) -> None:
-
-    if 0 == level.find("DEBUG"):
-        server.logger.setLevel(logging.logging.DEBUG)
-    elif 0 == level.find("INFO"):
-        server.logger.setLevel(logging.logging.INFO)
-    elif 0 == level.find("WARNING"):
-        server.logger.setLevel(logging.logging.WARNING)
-    elif 0 == level.find("ERROR"):
-        server.logger.setLevel(logging.logging.ERROR)
-    elif 0 == level.find("CRITICAL"):
-        server.logger.setLevel(logging.logging.CRITICAL)
-    else:
-        server.logger.setLevel(logging.logging.ERROR)
+from lib import setlogger
 
 server = Flask(__name__)
 mysql = MySQL(server)
@@ -30,9 +16,9 @@ server.config["MYSQL_PORT"] = int(os.environ.get("MYSQL_PORT"))
 
 jwt_secret = os.environ.get("JWT_SECRET")
 
-level = os.environ.get("LOGGING")
-level =  "ERROR" if not level else level
-flask_logger_set(level)
+slevel = os.environ.get("LOGGING")
+slevel =  "ERROR" if not slevel else slevel
+server.logger.setLevel(level=setlogger.str_to_log_level(slevel))
 
 server.logger.info(f'Start server with MySql credentials: {server.config["MYSQL_USER"]}@' +
     f'{server.config["MYSQL_HOST"]} DB: {server.config["MYSQL_DB"]} ' +
@@ -70,7 +56,7 @@ def login():
             return "invalid credentials", 401
         else:
             token = createJWT(auth.username, jwt_secret, True)
-            server.logger.debug(f'create token for {auth.username} : {token}')
+            server.logger.info(f'create token for {auth.username} : {token}')
             return token
     else:
         #  user doesn't exist
@@ -98,7 +84,7 @@ def validate():
         server.logger.debug(err)
         return "not authorized", 403
 
-    server.logger.debug(f'token is valid')
+    server.logger.info(f'token is valid')
     return decoded, 200
 
 

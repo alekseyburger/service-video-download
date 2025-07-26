@@ -14,7 +14,7 @@ server = Flask(__name__)
 # get logging level from the env variable and configure logger
 level = os.environ.get("LOGGING")
 level =  "ERROR" if not level else level
-server.logger.setLevel(setlogger.flask_logger_set(level))
+server.logger.setLevel(setlogger.str_to_log_level(level))
 
 # connect to mongodb
 mongo_video = PyMongo(server, uri="mongodb://host.minikube.internal:27017/videos")

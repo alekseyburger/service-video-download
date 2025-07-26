@@ -1,7 +1,7 @@
 import pika, json
 import logging
 
-logger = logging.getLogger('server.sub')
+logger = logging.getLogger(__name__)
 
 def upload(f, fs, channel, access):
     try:

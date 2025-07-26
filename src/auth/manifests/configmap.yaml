@@ -7,4 +7,4 @@ data:
   MYSQL_USER: authapp
   MYSQL_DB: auth
   MYSQL_PORT: "3306"
-  LOGGING: DEBUG
+  LOGGING: INFO

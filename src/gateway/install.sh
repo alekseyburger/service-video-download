@@ -12,3 +12,5 @@ done
 
 kubectl apply -f ./manifests.tmp/
 kubectl scale deployment --replicas=1 gateway
+
+rm -rf ./manifests.tmp/

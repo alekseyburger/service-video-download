@@ -3,9 +3,12 @@ from pymongo import MongoClient
 import gridfs
 from convert import to_mp3
 import logging
+from lib import setlogger
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+slevel = os.environ.get("LOGGING")
+slevel =  "ERROR" if not slevel else slevel
+logging.basicConfig(level=setlogger.str_to_log_level(slevel))
 
 def main():
     client = MongoClient("host.minikube.internal", 27017)
@@ -25,7 +28,7 @@ def main():
     channel = connection.channel()
 
     def callback(ch, method, properties, body):
-        err = to_mp3.start(body, fs_videos, fs_mp3s, ch)
+        err = to_mp3.convert_and_msg(body, fs_videos, fs_mp3s, ch)
         if err:
             ch.basic_nack(delivery_tag=method.delivery_tag)
         else:

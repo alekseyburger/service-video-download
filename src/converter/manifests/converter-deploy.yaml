@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: converter
-          image: $DOCKER_ACCOUNT$/converter
+          image: $DOCKER_ACCOUNT/converter
           envFrom:
             - configMapRef:
                 name: converter-configmap

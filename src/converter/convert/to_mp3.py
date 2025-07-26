@@ -2,9 +2,10 @@ import pika, json, tempfile, os
 from bson.objectid import ObjectId
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import logging
+
 logger = logging.getLogger(__name__)
 
-def start(message, fs_videos, fs_mp3s, channel):
+def convert_and_msg(message, fs_videos, fs_mp3s, channel):
     message = json.loads(message)
 
     logger.debug(f'request for {message["video_fid"]} is received')
@@ -29,7 +30,7 @@ def start(message, fs_videos, fs_mp3s, channel):
     f.close()
     os.remove(tf_path)
 
-    logger.debug(f'converted data {message["video_fid"]} is ready')
+    logger.info(f'converted data {message["video_fid"]} is ready. MP3 {str(fid)}')
 
     message["mp3_fid"] = str(fid)
 
@@ -43,5 +44,7 @@ def start(message, fs_videos, fs_mp3s, channel):
             ),
         )
     except Exception as err:
+        logger.error(f"Send MP3 {str(fid)} message error")
+        logger.error(err)
         fs_mp3s.delete(fid)
         return "failed to publish message"
