@@ -1,4 +1,4 @@
-from flask import logging
+import logging
 
 def str_to_log_level (level: str):
 

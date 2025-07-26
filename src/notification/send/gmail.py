@@ -5,7 +5,7 @@ import base64, os, json
 import logging
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 gmail_client_id = os.environ.get('GMAIL_CLIENT_ID')
 gmail_secret = os.environ.get('GMAIL_SECRET')
