@@ -3,14 +3,14 @@ import logging
 def str_to_log_level (level: str):
 
     if 0 == level.find("DEBUG"):
-        return logging.logging.DEBUG
+        return logging.DEBUG
     elif 0 == level.find("INFO"):
-        return logging.logging.INFO
+        return logging.INFO
     elif 0 == level.find("WARNING"):
-        return logging.logging.WARNING
+        return logging.WARNING
     elif 0 == level.find("ERROR"):
-        return logging.logging.ERROR
+        return logging.ERROR
     elif 0 == level.find("CRITICAL"):
-        return logging.logging.CRITICAL
+        return logging.CRITICAL
     else:
-        return logging.logging.ERROR
+        return logging.ERROR
